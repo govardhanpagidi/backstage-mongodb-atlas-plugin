@@ -1,5 +1,5 @@
 apiVersion: backstage.io/v1alpha1
-kind: Resource
+kind: Component
 metadata:
   name: artists-db
   description: stores mongodb cluster details
