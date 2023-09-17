@@ -1,7 +1,7 @@
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: mongodb-atlas
+  name: mongodb
   description: stores mongodb cluster details
 spec:
   type: database
