@@ -20,8 +20,8 @@ import { Project } from '@backstage/plugin-gcp-projects/src/components/NewProjec
 import axios from 'axios';
 import cors from 'cors';
 
-const apiKey = 'ghewvngy';
-const apiPrivateKey = 'e0702d6b-b062-4a70-bbd0-7044c4f50f75';
+const apiKey = '';
+const apiPrivateKey = '';
 const baseUrl = 'https://cloud.mongodb.com/api/atlas/v1.0';
 
 const corsOptions = {
