@@ -7,3 +7,4 @@ spec:
   type: database
   lifecycle: experimental
   owner: artist-relations-team
+  system: mongoddb-atlas
