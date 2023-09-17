@@ -5,9 +5,8 @@ metadata:
   name: mongodb-atlas-basic
   description: Replace me with a real description.
 spec:
-  type: service
-  lifecycle: production
-  owner: your-team
-  apiVersion: backstage.io/v1alpha1
+  type: resource
+  lifescycle: experimental
+  owner: govardhan.pagidi@mongodb.com
   
 
