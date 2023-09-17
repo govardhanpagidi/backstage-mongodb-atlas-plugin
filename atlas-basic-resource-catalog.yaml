@@ -1,9 +1,13 @@
+
 apiVersion: backstage.io/v1alpha1
-kind: Resource
+kind: Component
 metadata:
-  name: mongodb-atlas-basic
-  description: Basic MongoDB project,cluster and endpoint 
+  name: replace-me
+  description: Replace me with a real description.
 spec:
-  type: database
-  owner: dev-team
+  type: service
   lifecycle: production
+  owner: your-team
+  apiVersion: backstage.io/v1alpha1
+  
+
