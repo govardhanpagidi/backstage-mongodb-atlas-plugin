@@ -5,7 +5,7 @@ metadata:
   name: mongodb-atlas-basic
   description: Replace me with a real description.
 spec:
-  type: resource
+  type: service
   lifescycle: experimental
   owner: govardhan.pagidi@mongodb.com
   
