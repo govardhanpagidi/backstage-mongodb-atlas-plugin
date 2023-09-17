@@ -1,0 +1,9 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: mongodb-atlas
+  description: stores mongodb cluster details
+spec:
+  type: database
+  lifecycle: experimental
+  owner: artist-relations-team
