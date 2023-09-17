@@ -3,8 +3,8 @@ import axios from 'axios';
 import * as crypto from 'crypto';
 import { useTable } from 'react-table';
 
-const apiKey = 'ghewvngy';
-const apiPrivateKey = 'e0702d6b-b062-4a70-bbd0-7044c4f50f75';
+const apiKey = '';
+const apiPrivateKey = '';
 const baseUrl = 'https://cloud.mongodb.com/api/atlas/v1.5/groups/64bad960538ae76ec5c70050/clusters';
 
 class Projects extends React.Component<{ columns: any, data: any }> {
