@@ -1,9 +1,9 @@
 apiVersion: backstage.io/v1alpha1
 kind: Resource
 metadata:
-  name: artists-db
-  description: Stores artist details
+  name: mongodb-atlas-basic
+  description: Basic MongoDB project,cluster and endpoint 
 spec:
   type: database
-  owner: artist-relations-team
-  system: artist-engagement-portal
+  owner: dev-team
+  system: MongoDB-atlas
