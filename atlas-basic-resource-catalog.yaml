@@ -6,4 +6,4 @@ metadata:
 spec:
   type: database
   owner: dev-team
-  system: MongoDB-atlas
+  lifecycle: production
