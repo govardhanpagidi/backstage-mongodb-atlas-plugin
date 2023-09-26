@@ -17,7 +17,7 @@ import React from 'react';
 import { Link, TableColumn } from '@backstage/core-components';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-const apiUrl = 'http://localhost:8080/api/projects?publicKey=ghewvngy&privateKey=e0702d6b-b062-4a70-bbd0-7044c4f50f75&orgId=63350255419cf25e3d511c95'; // Replace with your API endpoint
+const apiUrl = 'http://localhost:8080/api/projects'; // Replace with your API endpoint
 const username = '';
 const password = '';
 //const apiUrl = 'http://localhost:8081/api/project';
