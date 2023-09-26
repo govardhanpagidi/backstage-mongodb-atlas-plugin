@@ -23,45 +23,53 @@ import {
   ContentHeader,
   HeaderLabel,
   SupportButton,
-  PageWithHeader,
-  CreateButton,
   TableColumn,
 } from '@backstage/core-components';
-import { CatalogFilterLayout, EntityKindPicker, EntityLifecyclePicker, EntityListProvider, EntityOwnerPicker, EntityTagPicker, EntityTypePicker, UserListFilterKind, UserListPicker } from '@backstage/plugin-catalog-react';
-import { CatalogTable, CatalogTableRow } from '@backstage/plugin-catalog';
-const registerComponentLink = useRouteRef(registerComponentRouteRef);
-
-// import { ProjectTable } from '../ProjectFetchComponent/ProjectFetchComponent';
+import {  
+  CatalogFilterLayout, 
+  EntityKindPicker, 
+  EntityLifecyclePicker,
+  EntityListProvider,
+  EntityOwnerPicker, EntityTagPicker, EntityTypePicker, UserListFilterKind, UserListPicker } from '@backstage/plugin-catalog-react';
+import { CatalogTableRow } from '@backstage/plugin-catalog';
 import {ProjectTable} from '../ProjectFetchComponent/ProjectFetchComponent';
-import ClusterTable, { ClusterList } from '../ClusterFetchComponent/ClusterFetchComponent';
-//import {ProjectTable} from '../ProjectComponent/ProjectComponent';
-// import { useRouteRef } from '@backstage/core-plugin-api';
-// import { createProjectRouteRef } from '../../routes';
-// const registerComponentLink = useRouteRef(createProjectRouteRef);
+import {  CreateButton } from '@backstage/core-components';
 
+const orgId = ""
+const subTitle = "Fully managed MongoDB database in the cloud"
 export type DefaultProjectProps = {
   initiallySelectedFilter?: UserListFilterKind;
   columns?: TableColumn<CatalogTableRow>[];
 };
 
+const title = 'org: '+orgId;
 export const ExampleComponent = (props: DefaultProjectProps) => (
-  <Page themeId="tool">
-    <Header title="MongoDB Atlas Resources" subtitle="Optional subtitle">
+  
+  <Page themeId="home">
+    <Header title="MongoDB Atlas Resources" subtitle={subTitle}>
       <HeaderLabel label="Owner" value="Team X" />
       <HeaderLabel label="Lifecycle" value="Alpha" />
     </Header>
     <Content>
-    <ContentHeader title="|" >
+    <ContentHeader title={title} >
           <CreateButton
-            title="Create Project"
-            to={registerComponentLink?.()}
+            title="CREATE PROJECT"
+            to={'/atlas'}
           />
             <SupportButton>Atlas mongodb api</SupportButton>
           </ContentHeader>
       <EntityListProvider>
           <CatalogFilterLayout>
+            <CatalogFilterLayout.Filters>
+              <EntityKindPicker initialFilter="api" hidden />
+              <EntityTypePicker />
+              <UserListPicker  />
+              <EntityOwnerPicker />
+              <EntityLifecyclePicker />
+              <EntityTagPicker />
+            </CatalogFilterLayout.Filters>
             <CatalogFilterLayout.Content>
-               <ClusterList />
+               <ProjectTable />
             </CatalogFilterLayout.Content>
           </CatalogFilterLayout>
         </EntityListProvider>

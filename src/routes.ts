@@ -19,7 +19,13 @@ export const rootRouteRef = createRouteRef({
   id: 'atlas',
 });
 
-export const createProjectRouteRef = createExternalRouteRef({
-  id: 'create-project',
-  optional: true,
+export const clusterRouteRef = createExternalRouteRef({
+  id: 'cluster-fetch-component',
 });
+
+export const clusterCreateRouteRef = createExternalRouteRef({
+  id: 'cluster-create-component',
+});
+
+
+

@@ -17,11 +17,11 @@ import React from 'react';
 import { Table, TableColumn } from '@backstage/core-components';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-const apiUrl = 'http://localhost:8080/api/projects?publicKey=ghewvngy&privateKey=e0702d6b-b062-4a70-bbd0-7044c4f50f75&orgId=63350255419cf25e3d511c95'; // Replace with your API endpoint
+import { Link } from '@backstage/core-components';
 const username = '';
 const password = '';
-// const apiUrl = 'http://localhost:8081/api/project';
-
+const orgId = ""
+const apiUrl = 'http://localhost:8080/api/projects?publicKey='+username+'&privateKey='+password+'&orgId='+orgId; // Replace with your API endpoint
 
 
 type AsyncState<T> = {
@@ -29,30 +29,6 @@ type AsyncState<T> = {
   loading: boolean;
   error: Error | null;
 };
-
-interface ENV {
-  NODE_ENV: string | undefined;
-  USERNAME: string | undefined;
-  PASSWORD: string | undefined;
-  ATLAS_API_URI: string | undefined;
-}
-
-
-const getConfig = (): ENV => {
-  // return {
-  //   NODE_ENV: process.env.NODE_ENV,
-  //   USERNAME: process.env.USERNAME ,
-  //   PASSWORD: process.env.PASSWORD ,
-  //   ATLAS_API_URI: process.env.ATLAS_API_URI
-  // };
-  return {
-      NODE_ENV: process.env.NODE_ENV,
-      USERNAME: username ,
-      PASSWORD: password ,
-      ATLAS_API_URI: apiUrl
-    };
-};
-
 
 export function useAsync<T>(asyncFunction: () => Promise<T>): AsyncState<T> {
   const [value, setValue] = useState<T | null>(null);
@@ -76,21 +52,10 @@ export function useAsync<T>(asyncFunction: () => Promise<T>): AsyncState<T> {
 
 async function fetchDataWithDigestAuth(): Promise<Project[]> {
   try {
-    debugger
-    // call the api with digest auth    
 
-
-     let config = getConfig()
-
-    const token = `${config.USERNAME}:${config.PASSWORD}`;
-    const encodedToken = Buffer.from(token).toString('base64');
-
-    // call the api with digest auth  
-        
     var apiConfig = {
       method: 'GET',
-      url: config.ATLAS_API_URI,
-      headers: { 'Authorization': 'Basic '+ encodedToken}
+      url: apiUrl,
     };
 
     const response = await axios(apiConfig);
@@ -105,14 +70,6 @@ async function fetchDataWithDigestAuth(): Promise<Project[]> {
   }
 
 }
- 
-// create a table component with clickable links to projects
-// https://backstage.io/docs/features/software-catalog/directory-structure
-// https://backstage.io/docs/features/software-catalog/directory-structure#table
-// https://backstage.io/docs/features/software-catalog/directory-structure#table-with-actions
-// https://backstage.io/docs/features/software-catalog/directory-structure#table-with-actions
-
-
 
 export const ProjectTable = () => {
 
@@ -121,12 +78,7 @@ export const ProjectTable = () => {
       title: 'ID', field: 'id',
     },
     { 
-      // create clickable link to project
-
       title: 'Name', field: 'name',
-    },
-    { 
-      title: 'OrgId', field: 'orgId',
     },
     { 
       title: 'Created', field: 'created',
@@ -150,9 +102,12 @@ export const ProjectTable = () => {
     return <div>No data available.</div>;
   }
 
+  value.forEach((project) => {
+      project.name = <Link to={`/clusters/${project.id}/${project.name}`}> <b>{project.name}</b></Link>;
+  });
+  
 
   return (
-   
     <Table
       title="Projects"
       options={{ search: false, paging: false }}

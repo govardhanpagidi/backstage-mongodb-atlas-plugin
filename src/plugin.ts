@@ -15,7 +15,7 @@
  */
 import { createPlugin, createRoutableExtension } from '@backstage/core-plugin-api';
 
-import { rootRouteRef } from './routes';
+import { rootRouteRef,clusterRouteRef,clusterCreateRouteRef } from './routes';
 
 export const atlasPlugin = createPlugin({
   id: 'atlas',
@@ -30,5 +30,23 @@ export const AtlasPage = atlasPlugin.provide(
     component: () =>
       import('./components/ExampleComponent').then(m => m.ExampleComponent),
     mountPoint: rootRouteRef,
+  }),
+);
+
+export const ClustersListComponent = atlasPlugin.provide(
+  createRoutableExtension({
+    name: 'ClustersListComponent',
+    component: () =>
+      import('./components/ClusterFetchComponent').then(m => m.ClustersComponent),
+    mountPoint: clusterRouteRef ,
+  }),
+);
+
+export const CreateClusterPage = atlasPlugin.provide(
+  createRoutableExtension({
+    name: 'AtlasPage',
+    component: () =>
+      import('./components/CreateClusterComponent').then(m => m.CreateClusterComponent),
+    mountPoint: clusterCreateRouteRef,
   }),
 );

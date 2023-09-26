@@ -13,16 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React from 'react';
-import { Link, TableColumn } from '@backstage/core-components';
+import {  CreateButton, Link } from '@backstage/core-components';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-const apiUrl = 'http://localhost:8080/api/projects'; // Replace with your API endpoint
+import { Table, TableColumn } from '@backstage/core-components';
+import React from 'react';
+import { useParams } from 'react-router-dom';
+import {
+  Header,
+  Page,
+  Content,
+  ContentHeader,
+  HeaderLabel,
+  SupportButton,
+} from '@backstage/core-components';
+import { CatalogFilterLayout,  EntityKindPicker,  EntityLifecyclePicker,  EntityListProvider,  EntityOwnerPicker,  EntityTagPicker,  EntityTypePicker,  UserListFilterKind, UserListPicker } from '@backstage/plugin-catalog-react';
+import {  CatalogTableRow } from '@backstage/plugin-catalog';
+
+
+const baseURL = "http://localhost:8080"
 const username = '';
 const password = '';
-//const apiUrl = 'http://localhost:8081/api/project';
-const registerComponentLink = useRouteRef(registerComponentRouteRef);
+const orgId = "";
 
+
+export type DefaultProjectProps = {
+  initiallySelectedFilter?: UserListFilterKind;
+  columns?: TableColumn<CatalogTableRow>[];
+};
 
 
 type AsyncState<T> = {
@@ -31,37 +49,13 @@ type AsyncState<T> = {
   error: Error | null;
 };
 
-interface ENV {
-  NODE_ENV: string | undefined;
-  USERNAME: string | undefined;
-  PASSWORD: string | undefined;
-  ATLAS_API_URI: string | undefined;
-}
-
-
-const getConfig = (): ENV => {
-  // return {
-  //   NODE_ENV: process.env.NODE_ENV,
-  //   USERNAME: process.env.USERNAME ,
-  //   PASSWORD: process.env.PASSWORD ,
-  //   ATLAS_API_URI: process.env.ATLAS_API_URI
-  // };
-  return {
-      NODE_ENV: process.env.NODE_ENV,
-      USERNAME: username ,
-      PASSWORD: password ,
-      ATLAS_API_URI: apiUrl
-    };
-};
-
-
-export function useAsync<T>(asyncFunction: () => Promise<T>): AsyncState<T> {
+export function useAsync<T>(asyncFunction: (projectId? : string) => Promise<T>,projectId? :string): AsyncState<T> {
   const [value, setValue] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    asyncFunction()
+    asyncFunction(projectId)
       .then((data) => {
         setValue(data);
         setLoading(false);
@@ -75,23 +69,25 @@ export function useAsync<T>(asyncFunction: () => Promise<T>): AsyncState<T> {
   return { value, loading, error };
 }
 
-async function fetchDataWithDigestAuth(): Promise<Cluster[]> {
+async function fetchClusters(projectId? : string): Promise<Cluster[]> {
   try {
     debugger
     // call the api with digest auth    
+    const apiURL = "/api/project/"+projectId+"/cluster";
+    const queryParams = {
+      publicKey: username,
+      privateKey: password,
+    };
+    const url = new URL(apiURL, baseURL);
 
+    // Add query parameters to the URL
+    for (const key in queryParams) {
+        url.searchParams.append(key, queryParams[key]);
+    }
 
-     let config = getConfig()
-
-    const token = `${config.USERNAME}:${config.PASSWORD}`;
-    const encodedToken = Buffer.from(token).toString('base64');
-
-    // call the api with digest auth  
-        
     var apiConfig = {
       method: 'GET',
-      url: config.ATLAS_API_URI,
-      headers: { 'Authorization': 'Basic '+ encodedToken}
+      url: url.toString(),
     };
 
     const response = await axios(apiConfig);
@@ -106,28 +102,6 @@ async function fetchDataWithDigestAuth(): Promise<Cluster[]> {
   }
 
 }
-
-export const ClusterList = () => {
-  const { value, loading, error } = useAsync<Cluster[]>(fetchDataWithDigestAuth);
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>Error: {error.message}</div>;
-  }
-
-  if (!value) {
-    return <div>No data available.</div>;
-  }
-
-  return (
-    <ClusterTable data={value}
-    />
-  );
-};
-
 
 interface Cluster {
   id: string;
@@ -150,37 +124,107 @@ interface AdvancedSettings {
 }
 
 
+export  const ClustersComponent = () => {
 
-interface Props {
-  data: Cluster[];
-}
+  const {projectId,projectName} = useParams();
+  const { value, loading, error } = useAsync<Cluster[]>( fetchClusters,projectId);
+  
+  const title = "project: "+projectName;
+  var child = <div>loading...</div>;
 
-const ClusterTable: React.FC<Props> = ({ data }) => {
-  function handleCellClick(_row: Cluster): void {
-    throw new Error('Function not implemented.');
+
+  if (loading) {
+    return display(title, <div>Loading...</div>,projectId);
   }
-    console.log(data)
-  // Add your table rendering logic here
-  return (
-    <table>
-      <thead>
-        <tr>
-          <th onClick={() => console.log('Header clicked')}>ID</th>
-          <th onClick={() => console.log('Header clicked')}>Name</th>
-          {/* Add other table headers */}
-        </tr>
-      </thead>
-      <tbody>
-        {data.map((row) => (
-          <tr key={row.id}>
-            <td>{row.id}</td>
-            <td > <Link onClick={() => handleCellClick(row)} to={''} >{row.name}</Link> </td>
-            {/* Add other table cells */}
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
+
+  if (error) {
+    return display(title,<div>Error: {error.message}</div>,projectId);
+  }
+
+  if (!value) {
+    return display(title,<div>No data available.</div>,projectId);
+  }
+  
+    const columns: TableColumn[] = [
+      { 
+        title: 'ID', field: 'id',
+      },
+      { 
+        // create clickable link to project
+  
+        title: 'Name', field: 'name',
+      },
+      { 
+        title: 'Cluster Type', field: 'clusterType',
+      },
+      { 
+        title: 'Version', field: 'mongoDBVersion',
+      },
+      { 
+        title: 'State', field: 'stateName',
+      },
+      { 
+        title: 'Disk Size (GB)', field: 'diskSizeGB',
+      },
+      { 
+        title: 'Backup Enabled', field: 'backupEnabled',
+      },
+      { 
+        title: 'Created On', field: 'createdDate',
+      },
+    ];
+  
+  
+  
+    value.forEach((cluster: { name: {} | null | undefined; id: any; }) => {
+      cluster.name = <Link to={`/clusters/${cluster.id}`}><b>{cluster.name}</b></Link>;
+    });
+    
+    child = <Table
+              title="Clusters"
+              options={{ search: false, paging: false }}
+              columns={columns}
+              data={value}
+            />
+
+  
+    // Add your table rendering logic here
+    return display(title,child,projectId,projectName);
+    
+  
 };
 
-export default ClusterTable;
+function display(title: string | undefined ,child: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined,projectId : string | undefined,projectName : string | undefined) {
+  return <Page themeId="home">
+    <Header title="MongoDB Atlas Resources" subtitle="Fully managed MongoDB database in the cloud">
+      <HeaderLabel label="Owner" value="Team X" />
+      <HeaderLabel label="Lifecycle" value="Alpha" />
+    </Header>
+    <Content>
+    <ContentHeader title={title}  >
+    <CreateButton
+            title="CREATE CLUSTER"
+            to={'/create-cluster/'+orgId+'/'+projectId+"/"+projectName}
+          />
+            <SupportButton>Atlas mongodb api</SupportButton>
+          </ContentHeader>
+      <EntityListProvider>
+          <CatalogFilterLayout>
+            <CatalogFilterLayout.Filters>
+              <EntityKindPicker initialFilter="api" hidden />
+              <EntityTypePicker />
+              <UserListPicker  />
+              <EntityOwnerPicker />
+              <EntityLifecyclePicker />
+              <EntityTagPicker />
+            </CatalogFilterLayout.Filters>
+            <CatalogFilterLayout.Content>
+            {child}
+            </CatalogFilterLayout.Content>
+          </CatalogFilterLayout>
+        </EntityListProvider>
+    </Content>
+  </Page>
+    
+}
+

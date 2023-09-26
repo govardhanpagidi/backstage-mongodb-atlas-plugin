@@ -18,31 +18,18 @@ import { Table, TableColumn } from '@backstage/core-components';
 import { useState, useEffect } from 'react';
 import { Project } from '@backstage/plugin-gcp-projects/src/components/NewProjectPage/NewProjectPage';
 import axios from 'axios';
-import cors from 'cors';
 
-const apiKey = '';
-const apiPrivateKey = '';
-const baseUrl = 'https://cloud.mongodb.com/api/atlas/v1.0';
 
-const corsOptions = {
-  origin: '*', // Replace with specific origin(s) or use '*' for any
-  methods: ['GET', 'POST'], // Specify allowed HTTP methods
-  allowedHeaders: ['Content-Type', 'Authorization'], // Specify allowed headers
-};
+//  const apiUrl = 'https://cloud.mongodb.com/api/atlas/v1.0/groups'; 
+const apiUrl = 'http://localhost:8080/api/project?Id=64b6d746ec88e93a0087d10a'; // Replace with your API endpoint
+const username = '';
+const password = '';
 
 type AsyncState<T> = {
   value: T | null;
   loading: boolean;
   error: Error | null;
 };
-
-interface ENV {
-  NODE_ENV: string | undefined;
-  USERNAME: string | undefined;
-  PASSWORD: string | undefined;
-  ATLAS_API_URI: string | undefined;
-}
-
 
 export function useAsync<T>(asyncFunction: () => Promise<T>): AsyncState<T> {
   const [value, setValue] = useState<T | null>(null);
@@ -58,30 +45,28 @@ export function useAsync<T>(asyncFunction: () => Promise<T>): AsyncState<T> {
       .catch((err) => {
         setError(err);
         setLoading(false);
-      }); 
+      });
   }, [asyncFunction]);
 
   return { value, loading, error };
 }
 
 async function fetchDataWithDigestAuth(): Promise<Project[]> {
-  const endpoint = '/groups'; // Specify the API endpoint you want to call
-  const timestamp = Math.floor(new Date().getTime() / 1000);
-  const nonce = crypto.randomBytes(16).toString('hex');
-  const message = `${timestamp}${nonce}`;
-  const hmac = crypto.createHmac('sha256', apiPrivateKey);
-  hmac.update(message);
-  const digest = hmac.digest('hex');
-  const authHeader = `Digest apiKey="${apiKey}", nonce="${nonce}", digest="${digest}", created="${timestamp}"`;
-
   try {
-    const response = await axios.get(`${baseUrl}${endpoint}`, {
-      headers: {
-        Authorization: authHeader,
-        'Content-Type': 'application/json',
-      },
-    });
- 
+    debugger
+
+    const token = `${username}:${password}`;
+    const encodedToken = Buffer.from(token).toString('base64');
+
+    var config = {
+      method: 'GET',
+      url: apiUrl,
+      headers: { 'Authorization': 'Basic '+ encodedToken}
+    };
+
+    const response = await axios(config);
+    console.log(JSON.stringify(response.data));
+    
     // Assuming the data structure is an array of Project objects
     return response.data.Response as Project[];
     // Assuming the data structure is an array of Project objects
@@ -92,15 +77,14 @@ async function fetchDataWithDigestAuth(): Promise<Project[]> {
 
 }
  
-
-export const ProjectTable = () => {
+export const ProjectTable = ( ) => {
 
   const columns: TableColumn[] = [
     { 
-      title: 'ID', field: 'id',
+      title: 'Name', field: 'name',
     },
     { 
-      title: 'Name', field: 'name',
+      title: 'ID', field: 'id',
     },
     { 
       title: 'OrgId', field: 'orgId',
@@ -109,11 +93,14 @@ export const ProjectTable = () => {
       title: 'Created', field: 'created',
     },
     { 
-      title: 'Link', field: 'links.href',
+      title: 'Link', field: 'link',
     },
   ];
 
+
+
   const { value, loading, error } = useAsync<Project[]>(fetchDataWithDigestAuth);
+  console.log("ProjectFetchComponent");
 
   if (loading) {
     return <div>Loading...</div>;
@@ -129,7 +116,6 @@ export const ProjectTable = () => {
 
 
   return (
-   
     <Table
       title="Projects"
       options={{ search: false, paging: false }}
@@ -140,13 +126,56 @@ export const ProjectTable = () => {
 };
 
 
+
+export const exampleProjects = {
+  "results": [
+    {
+      "name": "atlas-projet1"
+    },
+    {
+      "name": "atlas-projet2"
+    },
+    {
+      "name": "atlas-projet2"
+    },
+    {
+      "name": "atlas-projet4"
+    },
+   
+  ]
+}
+
 interface Project {
   id: number;
   name: string;
-  created:string;
-  orgid:string;
-  link:string;
   // Other properties...
 }
 
+export const ProjectFetchComponent = () => {
+const { value, loading, error } = useAsync<Project[]>(fetchDataWithDigestAuth);
 
+  console.log("ProjectFetchComponent");
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
+
+  if (!value) {
+    return <div>No data available.</div>;
+  }
+
+  // Assuming value contains an array of Project objects
+  return (
+    <div>
+      {value.map((project) => (
+        <div key={project.id}>{project.name}</div>
+      ))}
+    </div>
+
+    
+  );
+};
